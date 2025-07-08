@@ -62,15 +62,13 @@ export default function Lab1() {
       <div id="wd-tables">
         <h4>Table Tag</h4>
         <table border={1} width="100%">
-          <thead>
+          <tbody>
             <tr>
               <th>Quiz</th>
               <th>Topic</th>
               <th>Date</th>
               <th>Grade</th>
             </tr>
-          </thead>
-          <tbody>
             <tr>
               <td>Q1</td>
               <td>HTML</td>

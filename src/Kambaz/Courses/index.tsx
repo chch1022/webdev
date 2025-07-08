@@ -10,21 +10,23 @@ export default function Courses() {
             <h2>Course 1234</h2>
             <hr />
             <table>
-                <tr>
-                    <td valign="top">
-                        <CourseNavigation />
-                    </td>
-                    <td valign="top">
-                        <Routes>
-                            <Route path="/" element={<Navigate to="Home" />} />
-                            <Route path="Home" element={<Home />} />
-                            <Route path="Modules" element={<Modules />} />
-                            <Route path="Assignments" element={<Assignments/>} />
-                            <Route path="Assignments/:aid" element={<AssignmentEditor/>} />
-                        </Routes>
+                <tbody>
+                    <tr>
+                        <td valign="top">
+                            <CourseNavigation />
+                        </td>
+                        <td valign="top">
+                            <Routes>
+                                <Route path="/" element={<Navigate to="Home" />} />
+                                <Route path="Home" element={<Home />} />
+                                <Route path="Modules" element={<Modules />} />
+                                <Route path="Assignments" element={<Assignments/>} />
+                                <Route path="Assignments/:aid" element={<AssignmentEditor/>} />
+                            </Routes>
 
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
+                </tbody>
             </table>
         </div>
     );
