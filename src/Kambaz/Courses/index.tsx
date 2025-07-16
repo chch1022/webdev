@@ -8,7 +8,7 @@ import { FaAlignJustify } from "react-icons/fa";
 import Piazza from "./Piazza";
 import Zoom from "./Zoom";
 import Quizzes from "./Quizzes";
-import People from "./People";
+import PeopleTable from "./People/Table";
 import Grades from "./Grades";
 export default function Courses() {
     return (
@@ -31,7 +31,7 @@ export default function Courses() {
                         <Route path="Piazza" element={<Piazza />} />
                         <Route path="Zoom" element={<Zoom />} />
                         <Route path="Quizzes" element={<Quizzes />} />
-                        <Route path="People" element={<People />} />
+                        <Route path="People" element={<PeopleTable />} />
                         <Route path="Grades" element={<Grades />} />
                     </Routes>
                 </div></div>

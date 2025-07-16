@@ -10,7 +10,7 @@ export default function TOC() {
        <Nav.Link to="/Labs/Lab1" as={Link}>Lab 1</Nav.Link>
      </Nav.Item>
      <Nav.Item>
-       <Nav.Link to="/Labs/Lab2" as={Link} active>Lab 2</Nav.Link>
+       <Nav.Link to="/Labs/Lab2" as={Link} >Lab 2</Nav.Link>
      </Nav.Item>
      <Nav.Item>
        <Nav.Link to="/Labs/Lab3" as={Link}>Lab 3</Nav.Link>
@@ -19,7 +19,7 @@ export default function TOC() {
        <Nav.Link to="/Kambaz" as={Link}>Kambaz</Nav.Link>
      </Nav.Item>
      <Nav.Item>
-       <Nav.Link href="https://github.com/jannunzi">My GitHub</Nav.Link>
+       <Nav.Link href="https://github.com/chch1022/webdev">My GitHub</Nav.Link>
      </Nav.Item>
    </Nav>
 );}

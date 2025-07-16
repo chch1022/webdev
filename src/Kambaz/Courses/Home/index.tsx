@@ -1,16 +1,17 @@
 import Modules from "../Modules";
 import CourseStatus from "./Status";
-import { HomeTopButtons } from "./Status";
+
 export default function Home() {
   return (
-    <div>
-      <div className="d-flex" id="wd-home">
-        <div className="flex-fill me-3"></div>
-        <HomeTopButtons />
-        <Modules />
+    <div className="container-fluid">
+      <div className="row" id="wd-home">
+        <div className="col-12 col-xl-8">
+          <Modules />
+        </div>
+        <div className="col-12 col-xl-4">
+          <CourseStatus />
+        </div>
       </div>
-      <div className="d-none d-xl-block"></div>
-      <CourseStatus />
-    </div >
+    </div>
   );
 }
