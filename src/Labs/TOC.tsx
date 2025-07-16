@@ -19,7 +19,14 @@ export default function TOC() {
        <Nav.Link to="/Kambaz" as={Link}>Kambaz</Nav.Link>
      </Nav.Item>
      <Nav.Item>
-       <Nav.Link href="https://github.com/jannunzi">My GitHub</Nav.Link>
-     </Nav.Item>
+        <Nav.Link 
+          id="wd-github" 
+          href="https://github.com/chch1022/webdev.git"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          My GitHub
+        </Nav.Link>
+      </Nav.Item>
    </Nav>
 );}
