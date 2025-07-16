@@ -46,6 +46,15 @@ export default function KambazNavigation() {
           className="nav-link text-white border-0 bg-black text-center"
         >
           <LiaBookSolid className="fs-1" /><br />
+          Dashboard
+        </ListGroup.Item>
+
+        <ListGroup.Item 
+          to="/Kambaz/Courses/Home" 
+          as={NavLink}
+          className="nav-link text-white border-0 bg-black text-center"
+        >
+          <LiaBookSolid className="fs-1" /><br />
           Courses
         </ListGroup.Item>
 
