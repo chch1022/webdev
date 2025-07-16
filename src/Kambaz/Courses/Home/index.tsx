@@ -3,20 +3,14 @@ import CourseStatus from "./Status";
 import { HomeTopButtons } from "./Status";
 export default function Home() {
   return (
-    <table id="wd-home">
-      <tbody>
-        <tr>
-          <td valign="top">
-            <div>
-              <HomeTopButtons />
-              <Modules />
-            </div>
-          </td>
-          <td valign="top">
-            <CourseStatus />
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div>
+      <div className="d-flex" id="wd-home">
+        <div className="flex-fill me-3"></div>
+        <HomeTopButtons />
+        <Modules />
+      </div>
+      <div className="d-none d-xl-block"></div>
+      <CourseStatus />
+    </div >
   );
 }
