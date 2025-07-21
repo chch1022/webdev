@@ -11,7 +11,6 @@ export default function Assignments() {
   const { cid } = useParams();
   const assignments = db.assignments;
 
-  // Group assignments by type (ASSIGNMENTS, QUIZZES, EXAMS, PROJECT)
   const groupedAssignments = assignments
     .filter((assignment: any) => assignment.course === cid)
     .reduce((groups: any, assignment: any) => {
@@ -23,7 +22,6 @@ export default function Assignments() {
       return groups;
     }, {});
 
-  // Define section configurations
   const sectionConfigs = [
     { key: 'ASSIGNMENTS', title: 'ASSIGNMENTS', percentage: '40% of Total' },
     { key: 'QUIZZES', title: 'QUIZZES', percentage: '20% of Total' },

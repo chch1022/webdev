@@ -1,4 +1,47 @@
+import { useParams, Link } from "react-router-dom";
+import * as db from "../../Database";
+
 export default function AssignmentEditor() {
+    const { cid, aid } = useParams(); // Get course ID and assignment ID from URL
+    
+    // Debug: Log what we're getting
+    console.log("Course ID (cid):", cid);
+    console.log("Assignment ID (aid):", aid);
+    console.log("All assignments:", db.assignments);
+    
+    const assignment = db.assignments.find((a: any) => a._id === aid);
+    console.log("Found assignment:", assignment);
+
+    // Show loading/debug info
+    if (!cid || !aid) {
+        return (
+            <div className="container-fluid p-4">
+                <div className="alert alert-warning">
+                    <h4>Debug Info:</h4>
+                    <p>Course ID: {cid || "Missing"}</p>
+                    <p>Assignment ID: {aid || "Missing"}</p>
+                    <p>URL: {window.location.pathname}</p>
+                </div>
+            </div>
+        );
+    }
+
+    // If assignment not found, show error message
+    if (!assignment) {
+        return (
+            <div className="container-fluid p-4">
+                <div className="alert alert-danger">
+                    <h4>Assignment not found!</h4>
+                    <p>Looking for assignment ID: {aid}</p>
+                    <p>Available assignment IDs: {db.assignments.map(a => a._id).join(", ")}</p>
+                </div>
+                <Link to={`/Kambaz/Courses/${cid}/Assignments`} className="btn btn-outline-secondary">
+                    Back to Assignments
+                </Link>
+            </div>
+        );
+    }
+
     return (
         <div className="container-fluid p-4">
             <div className="row">
@@ -13,7 +56,7 @@ export default function AssignmentEditor() {
                                 id="wd-name" 
                                 type="text"
                                 className="form-control"
-                                defaultValue="A1 - ENV + HTML"
+                                defaultValue={assignment.title}
                                 placeholder="Enter assignment name"
                             />
                         </div>
@@ -27,7 +70,7 @@ export default function AssignmentEditor() {
                                 id="wd-description"
                                 className="form-control"
                                 rows={4}
-                                defaultValue="The assignment is available online Submit a link to the landing page of"
+                                defaultValue={assignment.description || "The assignment is available online Submit a link to the landing page of"}
                                 placeholder="Enter assignment description"
                             />
                         </div>
@@ -41,7 +84,7 @@ export default function AssignmentEditor() {
                                 id="wd-points" 
                                 type="number"
                                 className="form-control"
-                                defaultValue={100}
+                                defaultValue={assignment.points || 100}
                             />
                         </div>
 
@@ -49,7 +92,7 @@ export default function AssignmentEditor() {
                             <label htmlFor="wd-group" className="form-label fw-bold">
                                 Assignment Group
                             </label>
-                            <select id="wd-group" className="form-select">
+                            <select id="wd-group" className="form-select" defaultValue={assignment.type || "ASSIGNMENTS"}>
                                 <option value="ASSIGNMENTS">ASSIGNMENTS</option>
                                 <option value="QUIZZES">QUIZZES</option>
                                 <option value="EXAMS">EXAMS</option>
@@ -217,18 +260,18 @@ export default function AssignmentEditor() {
                         {/* Action Buttons */}
                         <hr className="my-4" />
                         <div className="d-flex justify-content-end gap-2">
-                            <button 
-                                type="button"
+                            <Link 
+                                to={`/Kambaz/Courses/${cid}/Assignments`}
                                 className="btn btn-outline-secondary px-4"
                             >
                                 Cancel
-                            </button>
-                            <button 
-                                type="submit"
+                            </Link>
+                            <Link 
+                                to={`/Kambaz/Courses/${cid}/Assignments`}
                                 className="btn btn-danger px-4"
                             >
                                 Save
-                            </button>
+                            </Link>
                         </div>
                     </form>
                 </div>
