@@ -7,7 +7,7 @@ export default function FindIndex() {
 
     return (
         <div id="wd-find-index">
-            <h4>Find Function</h4>
+            <h4>FindIndex Function</h4>
             fourIndex = {fourIndex} <br />
             string3Index = {string3Index} <hr />
         </div>)

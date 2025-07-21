@@ -8,6 +8,7 @@ import VariablesAndConstants from './VariablesAndConstants';
 import LegacyFunctions from './LegacyFunctions';
 import ArrowFunctions from './ArrowFunctions';
 import ImpliedReturn from './ImpliedReturn';
+import TemplateLiterals from './TemplateLiterals';
 import SimpleArrays from './SimpleArrays';
 import ArrayIndexAndLength from './ArrayIndexAndLength';
 import AddingAndRemovingToFromArrays from './AddingAndRemovingToFromArrays';
@@ -18,6 +19,7 @@ import FindIndex from './FindIndex';
 import FilterFunction from './FilterFunction';
 import JsonStringify from './JsonStringify';
 import House from './House';
+import TodoItem from './todos/TodoItem';
 import TodoList from './todos/TodoList';
 import Spreading from './Spreading';
 import Destructing from './Destructing';
@@ -46,6 +48,7 @@ export default function Lab3() {
       <LegacyFunctions />
       <ArrowFunctions />
       <ImpliedReturn />
+      <TemplateLiterals />
       <SimpleArrays />
       <ArrayIndexAndLength />
       <AddingAndRemovingToFromArrays />
@@ -56,6 +59,7 @@ export default function Lab3() {
       <FilterFunction />
       <JsonStringify />
       <House />
+      <TodoItem />
       <TodoList />
       <Spreading />
       <Destructing />
@@ -63,6 +67,7 @@ export default function Lab3() {
       <DestructingImports />
       <Classes />
       <Styles />
+      <Add a={1} b={2} />
       <Add a={3} b={4} />
       <div id="wd-lab3">
         <h3>JavaScript</h3>
