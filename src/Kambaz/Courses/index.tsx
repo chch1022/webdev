@@ -1,20 +1,24 @@
-import { courses } from "../Database";
 import CourseNavigation from "./Navigation";
 import Modules from "./Modules";
 import Home from "./Home";
 import Assignments from "./Assignments";
 import AssignmentEditor from "./Assignments/Editor";
-import { Route, Routes, useParams,useLocation } from "react-router";
+import { Route, Routes, useParams, useLocation } from "react-router";
+import { useSelector } from "react-redux";
 import { FaAlignJustify } from "react-icons/fa";
 import Piazza from "./Piazza";
 import Zoom from "./Zoom";
 import Quizzes from "./Quizzes";
 import PeopleTable from "./People/Table";
 import Grades from "./Grades";
+
 export default function Courses() {
     const { cid } = useParams();
-    const course = courses.find((course) => course._id === cid);
+    const { courses } = useSelector((state: any) => state.coursesReducer);
+    const { currentUser } = useSelector((state: any) => state.accountReducer);
+    const course = courses.find((course: any) => course._id === cid);
     const { pathname } = useLocation();
+
     return (
         <div id="wd-courses">
             <h2 className="text-danger">
@@ -24,22 +28,27 @@ export default function Courses() {
             <div className="d-flex">
                 <div className="d-none d-md-block">
                     <CourseNavigation />
-
                 </div>
                 <div className="flex-fill">
                     <Routes>
                         <Route path="Home" element={<Home />} />
                         <Route path="Modules" element={<Modules />} />
                         <Route path="Assignments" element={<Assignments />} />
-                        <Route path="Assignments/:aid" element={<AssignmentEditor />} />
+                        {/* Allow assignment editing and creation if user is FACULTY */}
+                        {currentUser?.role === "FACULTY" && (
+                            <>
+                                <Route path="Assignments/new" element={<AssignmentEditor />} />
+                                <Route path="Assignments/:aid" element={<AssignmentEditor />} />
+                            </>
+                        )}
                         <Route path="Piazza" element={<Piazza />} />
                         <Route path="Zoom" element={<Zoom />} />
                         <Route path="Quizzes" element={<Quizzes />} />
                         <Route path="People" element={<PeopleTable />} />
                         <Route path="Grades" element={<Grades />} />
                     </Routes>
-                </div></div>
-        </div >
-
+                </div>
+            </div>
+        </div>
     );
 }
