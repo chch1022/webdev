@@ -69,16 +69,22 @@ export default function Dashboard() {
       
       {/* Only show New Course form if user is FACULTY */}
       {currentUser?.role === "FACULTY" && (
-        <>
-          <h5>New Course
-            <button className="btn btn-primary float-end"
-              id="wd-add-new-course-click"
-              onClick={addNewCourse} > Add </button>
-          </h5><hr />
-          <button className="btn btn-warning float-end me-2"
-            onClick={handleUpdateCourse} id="wd-update-course-click">
-            Update
-          </button>
+        <div className="mb-4">
+          <div className="d-flex justify-content-between align-items-center mb-2">
+            <h5 className="mb-0">New Course</h5>
+            <div>
+              <button className="btn btn-warning me-2"
+                onClick={handleUpdateCourse} id="wd-update-course-click">
+                Update
+              </button>
+              <button className="btn btn-primary"
+                id="wd-add-new-course-click"
+                onClick={addNewCourse}>
+                Add
+              </button>
+            </div>
+          </div>
+          <hr />
           <FormControl
             value={course.name}
             className="mb-2"
@@ -93,7 +99,7 @@ export default function Dashboard() {
             className="mb-2"
             onChange={(e) => setCourse({ ...course, description: e.target.value })}
           />
-        </>
+        </div>
       )}
 
       {/* Enrollments Toggle Button */}
