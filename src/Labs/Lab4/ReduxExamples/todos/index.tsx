@@ -1,57 +1,119 @@
+
 import { useSelector, useDispatch } from "react-redux";
-import { ListGroup, Button, FormControl } from "react-bootstrap";
 import { addTodo, updateTodo, setTodo, deleteTodo } from "./todosReducer";
 
 interface Todo {
   id: string;
   title: string;
-  
 }
+
 export default function todosReducer() {
   const { todos, todo } = useSelector((state: any) => state.todosReducer);
   const dispatch = useDispatch();
 
   return (
     <div id="wd-todos-redux">
-      <h2>Todos Redux</h2>
-      <ListGroup>
-        <ListGroup.Item>
-          <Button 
-            onClick={() => dispatch(addTodo(todo))}
-            id="wd-add-todo-click"
-          > 
-            Add 
-          </Button>
-          <Button 
-            onClick={() => dispatch(updateTodo(todo))}
-            id="wd-update-todo-click"
-          > 
-            Update 
-          </Button>
-          <FormControl
-            defaultValue={todo.title}
-            onChange={(e) => dispatch(setTodo({ ...todo, title: e.target.value }))}
-          />
-        </ListGroup.Item>
-        
+      <h2>Todo List</h2>
+      
+      {/* Input and action buttons at the top */}
+      <div style={{ 
+        display: 'flex', 
+        gap: '10px', 
+        marginBottom: '20px',
+        alignItems: 'center'
+      }}>
+        <input
+          type="text"
+          value={todo.title}
+          onChange={(e) => dispatch(setTodo({ ...todo, title: e.target.value }))}
+          placeholder="Enter todo title"
+          style={{
+            flex: 1,
+            padding: '8px 12px',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            fontSize: '16px'
+          }}
+        />
+        <button
+          onClick={() => dispatch(updateTodo(todo))}
+          style={{
+            backgroundColor: '#ffc107',
+            color: 'black',
+            border: 'none',
+            padding: '8px 16px',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontWeight: 'bold'
+          }}
+        >
+          Update
+        </button>
+        <button
+          onClick={() => dispatch(addTodo(todo))}
+          style={{
+            backgroundColor: '#28a745',
+            color: 'white',
+            border: 'none',
+            padding: '8px 16px',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontWeight: 'bold'
+          }}
+        >
+          Add
+        </button>
+      </div>
+
+      {/* Todo items */}
+      <div>
         {todos.map((todoItem: Todo) => (
-          <ListGroup.Item key={todoItem.id}>
-            <Button 
-              onClick={() => dispatch(deleteTodo(todoItem.id))}
-              id="wd-delete-todo-click"
-            > 
-              Delete 
-            </Button>
-            <Button 
-              onClick={() => dispatch(setTodo(todoItem))}
-              id="wd-set-todo-click"
-            > 
-              Edit 
-            </Button>
-            {todoItem.title}
-          </ListGroup.Item>
+          <div 
+            key={todoItem.id}
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '12px 0',
+              borderBottom: '1px solid #eee'
+            }}
+          >
+            <span style={{ fontSize: '16px', flex: 1 }}>
+              {todoItem.title}
+            </span>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={() => dispatch(setTodo(todoItem))}
+                style={{
+                  backgroundColor: '#007bff',
+                  color: 'white',
+                  border: 'none',
+                  padding: '6px 12px',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold'
+                }}
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => dispatch(deleteTodo(todoItem.id))}
+                style={{
+                  backgroundColor: '#dc3545',
+                  color: 'white',
+                  border: 'none',
+                  padding: '6px 12px',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold'
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
         ))}
-      </ListGroup>
+      </div>
       <hr/>
     </div>
   );

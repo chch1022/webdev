@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from "react-redux";
-import { ListGroup, Button, FormControl } from "react-bootstrap";
 import { addTodo, updateTodo, setTodo } from "./todosReducer";
+import { ListGroup, Button, FormControl } from "react-bootstrap";
 
 export default function TodoForm() {
   const { todo } = useSelector((state: any) => state.todosReducer);
@@ -21,7 +21,7 @@ export default function TodoForm() {
         Update 
       </Button>
       <FormControl
-        defaultValue={todo.title}
+        value={todo.title}
         onChange={(e) => dispatch(setTodo({ ...todo, title: e.target.value }))}
       />
     </ListGroup.Item>
