@@ -1,5 +1,6 @@
 import EnvironmentVariables from "./EnvironmentVariables";
 import PathParameters from "./PathParameters";
+import WorkingWithObjects from "./WorkingWithObjects";
 const HTTP_SERVER = import.meta.env.VITE_HTTP_SERVER;
 export default function Lab5() {
     return (
@@ -13,6 +14,7 @@ export default function Lab5() {
             </div><hr />
             <EnvironmentVariables />
             <PathParameters />
+            <WorkingWithObjects />
         </div>
 
 
