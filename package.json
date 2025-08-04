@@ -34,5 +34,26 @@
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.34.1",
     "vite": "^7.0.0"
-  }
+  },
+  "description": "Node.js HTTP web server for the kambaz application",
+  "main": "(index.js)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chch1022/webdev.git"
+  },
+  "keywords": [
+    "Node",
+    "REST",
+    "Server",
+    "HTTP",
+    "Web",
+    "Development",
+    "CS5610"
+  ],
+  "author": "Chen Chen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chch1022/webdev/issues"
+  },
+  "homepage": "https://github.com/chch1022/webdev#readme"
 }
