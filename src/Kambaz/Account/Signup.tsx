@@ -24,5 +24,3 @@ export default function Signup() {
       <Link to="/Kambaz/Account/Signin" className="wd-signin-link">Sign in</Link>
     </div>
 );}
-
-
