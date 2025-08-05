@@ -70,6 +70,12 @@ export default function UserRoutes(app) {
 
     const createCourse = (req, res) => {
         const currentUser = req.session["currentUser"];
+
+        // Add this check to prevent the error
+        if (!currentUser) {
+            return res.status(401).json({ message: "User not authenticated" });
+        }
+
         const newCourse = courseDao.createCourse(req.body);
         enrollmentsDao.enrollUserInCourse(currentUser._id, newCourse._id);
         res.json(newCourse);
