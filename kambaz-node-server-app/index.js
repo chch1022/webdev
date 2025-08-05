@@ -8,6 +8,7 @@ import CourseRoutes from "./Kambaz/Courses/routes.js";
 import session from "express-session";
 import ModuleRoutes from "./Kambaz/Modules/routes.js";
 import EnrollmentRoutes from "./Kambaz/Enrollments/routes.js";
+import AssignmentRoutes from "./Kambaz/Assignments/routes.js";
 
 
 const app = express();
@@ -40,5 +41,6 @@ ModuleRoutes(app);
 Lab5(app);
 Hello(app);
 app.listen(process.env.PORT || 4000);
+AssignmentRoutes(app);
 
 console.log("Server running on http://localhost:4000");

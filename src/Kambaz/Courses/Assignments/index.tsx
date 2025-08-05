@@ -6,8 +6,9 @@ import AssignmentControlButtons from "./AssignmentControlButtons";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router";
 import { useSelector, useDispatch } from "react-redux";
-import { deleteAssignment } from "./reducer";
-import { useState } from "react";
+import { setAssignments, deleteAssignment } from "./reducer";
+import { useState, useEffect } from "react";
+import * as assignmentClient from "./client";
 
 export default function Assignments() {
   const { cid } = useParams();
@@ -19,14 +20,35 @@ export default function Assignments() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [assignmentToDelete, setAssignmentToDelete] = useState<any>(null);
 
+  // Fetch assignments when component mounts or courseId changes
+  const fetchAssignments = async () => {
+    if (cid) {
+      try {
+        const courseAssignments = await assignmentClient.fetchAssignmentsForCourse(cid);
+        dispatch(setAssignments(courseAssignments));
+      } catch (error) {
+        console.error("Error fetching assignments:", error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchAssignments();
+  }, [cid]);
+
   const handleDeleteClick = (assignment: any) => {
     setAssignmentToDelete(assignment);
     setShowDeleteDialog(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (assignmentToDelete) {
-      dispatch(deleteAssignment(assignmentToDelete._id));
+      try {
+        await assignmentClient.deleteAssignment(assignmentToDelete._id);
+        dispatch(deleteAssignment(assignmentToDelete._id));
+      } catch (error) {
+        console.error("Error deleting assignment:", error);
+      }
     }
     setShowDeleteDialog(false);
     setAssignmentToDelete(null);
@@ -135,8 +157,8 @@ export default function Assignments() {
                         </Link>
                         <div className="text-secondary ms-0 mt-2">
                           {assignment.description} |
-                          {assignment.availableDate && ` Not available until ${assignment.availableDate} |`}
-                          {assignment.dueDate && ` Due ${assignment.dueDate} |`}
+                          {assignment.availableDate && ` Not available until ${new Date(assignment.availableDate).toLocaleDateString()} |`}
+                          {assignment.dueDate && ` Due ${new Date(assignment.dueDate).toLocaleDateString()} |`}
                           {assignment.points && ` ${assignment.points} pts`}
                         </div>
                       </div>

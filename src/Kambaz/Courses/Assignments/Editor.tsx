@@ -1,16 +1,15 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useState, useEffect } from "react";
 import { addAssignment, updateAssignment } from "./reducer";
+import * as assignmentClient from "./client";
 
 export default function AssignmentEditor() {
     const { cid, aid } = useParams();
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { assignments } = useSelector((state: any) => state.assignmentsReducer);
     
     const isNewAssignment = aid === "new";
-    const existingAssignment = assignments.find((a: any) => a._id === aid);
     
     const [assignment, setAssignment] = useState({
         title: "",
@@ -23,28 +22,57 @@ export default function AssignmentEditor() {
         course: cid
     });
 
-    useEffect(() => {
-        if (!isNewAssignment && existingAssignment) {
-            setAssignment({
-                title: existingAssignment.title || "",
-                description: existingAssignment.description || "",
-                points: existingAssignment.points || 100,
-                dueDate: existingAssignment.dueDate || "",
-                availableDate: existingAssignment.availableDate || "",
-                availableUntil: existingAssignment.availableUntil || "",
-                type: existingAssignment.type || "ASSIGNMENTS",
-                course: cid
-            });
-        }
-    }, [aid, existingAssignment, isNewAssignment, cid]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
 
-    const handleSave = () => {
-        if (isNewAssignment) {
-            dispatch(addAssignment(assignment));
-        } else {
-            dispatch(updateAssignment({ ...assignment, _id: aid }));
+    // Fetch existing assignment if editing
+    useEffect(() => {
+        const fetchAssignment = async () => {
+            if (!isNewAssignment && aid) {
+                try {
+                    setLoading(true);
+                    const existingAssignment = await assignmentClient.fetchAssignmentById(aid);
+                    setAssignment({
+                        title: existingAssignment.title || "",
+                        description: existingAssignment.description || "",
+                        points: existingAssignment.points || 100,
+                        dueDate: existingAssignment.dueDate ? new Date(existingAssignment.dueDate).toISOString().slice(0, 16) : "",
+                        availableDate: existingAssignment.availableDate ? new Date(existingAssignment.availableDate).toISOString().slice(0, 16) : "",
+                        availableUntil: existingAssignment.availableUntil ? new Date(existingAssignment.availableUntil).toISOString().slice(0, 16) : "",
+                        type: existingAssignment.type || "ASSIGNMENTS",
+                        course: cid
+                    });
+                } catch (error) {
+                    console.error("Error fetching assignment:", error);
+                    setError("Failed to load assignment");
+                } finally {
+                    setLoading(false);
+                }
+            }
+        };
+
+        fetchAssignment();
+    }, [aid, isNewAssignment, cid]);
+
+    const handleSave = async () => {
+        try {
+            setLoading(true);
+            setError("");
+
+            if (isNewAssignment) {
+                const newAssignment = await assignmentClient.createAssignment(cid!, assignment);
+                dispatch(addAssignment(newAssignment));
+            } else {
+                const updatedAssignment = await assignmentClient.updateAssignment(aid!, assignment);
+                dispatch(updateAssignment(updatedAssignment));
+            }
+            navigate(`/Kambaz/Courses/${cid}/Assignments`);
+        } catch (error) {
+            console.error("Error saving assignment:", error);
+            setError("Failed to save assignment");
+        } finally {
+            setLoading(false);
         }
-        navigate(`/Kambaz/Courses/${cid}/Assignments`);
     };
 
     const handleCancel = () => {
@@ -58,10 +86,28 @@ export default function AssignmentEditor() {
         }));
     };
 
+    if (loading && !isNewAssignment) {
+        return (
+            <div className="container-fluid p-4">
+                <div className="text-center">
+                    <div className="spinner-border" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="container-fluid p-4">
             <div className="row">
                 <div className="col-12">
+                    {error && (
+                        <div className="alert alert-danger" role="alert">
+                            {error}
+                        </div>
+                    )}
+                    
                     <form onSubmit={(e) => e.preventDefault()}>
                         {/* Assignment Name */}
                         <div className="mb-3">
@@ -75,6 +121,7 @@ export default function AssignmentEditor() {
                                 value={assignment.title}
                                 onChange={(e) => handleInputChange('title', e.target.value)}
                                 placeholder="Enter assignment name"
+                                required
                             />
                         </div>
 
@@ -104,6 +151,7 @@ export default function AssignmentEditor() {
                                 className="form-control"
                                 value={assignment.points}
                                 onChange={(e) => handleInputChange('points', parseInt(e.target.value) || 0)}
+                                min="0"
                             />
                         </div>
 
@@ -291,6 +339,7 @@ export default function AssignmentEditor() {
                                 type="button"
                                 onClick={handleCancel}
                                 className="btn btn-outline-secondary px-4"
+                                disabled={loading}
                             >
                                 Cancel
                             </button>
@@ -298,8 +347,16 @@ export default function AssignmentEditor() {
                                 type="button"
                                 onClick={handleSave}
                                 className="btn btn-danger px-4"
+                                disabled={loading}
                             >
-                                Save
+                                {loading ? (
+                                    <>
+                                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                        Saving...
+                                    </>
+                                ) : (
+                                    'Save'
+                                )}
                             </button>
                         </div>
                     </form>
