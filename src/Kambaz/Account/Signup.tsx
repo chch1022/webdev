@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { FormControl } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
-import * as client from "../../Labs/Kambaz/Account/client";
+import * as client from "./client";
 import { useDispatch } from "react-redux";
 import { setCurrentUser } from "./reducer";
 export default function Signup() {
