@@ -71,4 +71,4 @@ export default [
     assignment: "A202",
     grade: "80",
   },
-];
+]
