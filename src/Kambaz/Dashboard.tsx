@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Col, Row, Card, Button, FormControl } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
 import { useState } from "react";
-import { addCourse, deleteCourse, updateCourse } from "./Courses/reducer";
+import {updateCourse } from "./Courses/reducer";
 
 // Add this interface for props
 interface DashboardProps {

@@ -1,8 +1,5 @@
 import  { useEffect, useState } from "react";
-import axios from "axios";
 import * as client from "./client";
-
-const HTTP_SERVER = import.meta.env.VITE_HTTP_SERVER;
 
 export default function HttpClient() {
     const [welcomeOnClick, setWelcomeOnClick] = useState("");
