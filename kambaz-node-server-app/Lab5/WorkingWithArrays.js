@@ -34,6 +34,13 @@ export default function WorkingWithArrays(app) {
         res.json(todos);
     };
 
+    const postNewTodo = (req, res) => {
+        const newTodo = { ...req.body, id: new Date().getTime() };
+        todos.push(newTodo);
+        res.json(newTodo);
+    };
+
+
     const removeTodo = (req, res) => {
         const { id } = req.params;
         const todoIndex = todos.findIndex((t) => t.id === parseInt(id));
@@ -76,12 +83,14 @@ export default function WorkingWithArrays(app) {
         }
     };
 
-    // ROUTE REGISTRATION - ORDER MATTERS!
+
     app.get("/lab5/todos/create", createNewTodo);
+    app.post("/lab5/todos", postNewTodo);
     app.get("/lab5/todos/:id/title/:title", updateTodoTitle);
     app.get("/lab5/todos/:id/description/:description", updateTodoDescription);  // NEW
     app.get("/lab5/todos/:id/completed/:completed", updateTodoCompleted);        // NEW
     app.get("/lab5/todos/:id/delete", removeTodo);
     app.get("/lab5/todos/:id", getTodoById);
     app.get("/lab5/todos", getTodos);
+
 };

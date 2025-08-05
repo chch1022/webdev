@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/chch1022/webdev#readme",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^5.1.0"
-  },
-  "devDependencies": {}
+  }
 }
