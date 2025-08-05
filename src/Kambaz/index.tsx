@@ -44,6 +44,21 @@ export default function Kambaz() {
         }
     };
 
+    const updateCourse = async (course: any) => {
+        try {
+            await courseClient.updateCourse(course);
+            setCourses(courses.map((c) => {
+                if (c._id === course._id) { 
+                    return course; 
+                } else { 
+                    return c; 
+                }
+            }));
+        } catch (error) {
+            console.error("Error updating course:", error);
+        }
+    };
+
     useEffect(() => {
         fetchCourses();
     }, [currentUser]);
@@ -62,6 +77,7 @@ export default function Kambaz() {
                                     courses={courses}
                                     addNewCourse={addNewCourse}
                                     deleteCourse={deleteCourse}
+                                    updateCourse={updateCourse}
                                 />
                             </ProtectedRoute>
                         } />
