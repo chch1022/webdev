@@ -80,7 +80,6 @@ export default function Dashboard({ courses, addNewCourse, deleteCourse, updateC
     setCourse(courseToEdit);
   };
 
-  // Check if we're currently editing an existing course
   const isEditing = course._id && course._id !== "0";
 
   return (
