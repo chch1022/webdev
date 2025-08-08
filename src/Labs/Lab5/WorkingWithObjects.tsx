@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FormControl } from "react-bootstrap";
-const HTTP_SERVER = import.meta.env.VITE_HTTP_SERVER;
+const REMOTE_SERVER = import.meta.env.VITE_REMOTE_SERVER;
 
 export default function WorkingWithObjects() {
     const [assignment, setAssignment] = useState({
@@ -17,8 +17,8 @@ export default function WorkingWithObjects() {
         course: "Computer Science"
     });
     
-    const ASSIGNMENT_API_URL = `${HTTP_SERVER}/lab5/assignment`;
-    const MODULE_API_URL = `${HTTP_SERVER}/lab5/module`;
+    const ASSIGNMENT_API_URL = `${REMOTE_SERVER}/lab5/assignment`;
+    const MODULE_API_URL = `${REMOTE_SERVER}/lab5/module`;
 
     return (
         <div id="wd-working-with-objects">
@@ -105,22 +105,22 @@ export default function WorkingWithObjects() {
 
             <h4>Retrieving Objects</h4>
             <a id="wd-retrieve-assignments" className="btn btn-primary me-2"
-                href={`${HTTP_SERVER}/lab5/assignment`}>
+                href={`${REMOTE_SERVER}/lab5/assignment`}>
                 Get Assignment
             </a>
             <a id="wd-retrieve-modules" className="btn btn-success"
-                href={`${HTTP_SERVER}/lab5/module`}>
+                href={`${REMOTE_SERVER}/lab5/module`}>
                 Get Module
             </a>
             <hr />
             
             <h4>Retrieving Properties</h4>
             <a id="wd-retrieve-assignment-title" className="btn btn-primary me-2"
-                href={`${HTTP_SERVER}/lab5/assignment/title`}>
+                href={`${REMOTE_SERVER}/lab5/assignment/title`}>
                 Get Title
             </a>
             <a id="wd-retrieve-module-name" className="btn btn-success"
-                href={`${HTTP_SERVER}/lab5/module/name`}>
+                href={`${REMOTE_SERVER}/lab5/module/name`}>
                 Get Module Name
             </a>
             <hr />
