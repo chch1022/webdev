@@ -1,8 +1,8 @@
 import axios from "axios";
 const axiosWithCredentials = axios.create({ withCredentials: true });
-export const HTTP_SERVER = import.meta.env.VITE_HTTP_SERVER;
-export const ASSIGNMENTS_API = `${HTTP_SERVER}/api/assignments`;
-export const COURSES_API = `${HTTP_SERVER}/api/courses`;
+export const REMOTE_SERVER = import.meta.env.VITE_REMOTE_SERVER
+export const ASSIGNMENTS_API = `${REMOTE_SERVER}/api/assignments`;
+export const COURSES_API = `${REMOTE_SERVER}/api/courses`;
 
 // Get all assignments
 export const fetchAllAssignments = async () => {

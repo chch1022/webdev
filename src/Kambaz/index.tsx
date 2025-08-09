@@ -16,7 +16,6 @@ import * as courseClient from "./Courses/client";
 export default function Kambaz() {
     const [courses, setCourses] = useState<any[]>([]);
     const { currentUser } = useSelector((state: any) => state.accountReducer);
-    
     const fetchCourses = async () => {
         try {
             const courses = await userClient.findMyCourses();
@@ -25,33 +24,19 @@ export default function Kambaz() {
             console.error(error);
         }
     };
+    useEffect(() => {
+        fetchCourses();
+    }, [currentUser]);
 
-    const addNewCourse = async (course: any) => {
-        try {
-            const newCourse = await userClient.createCourse(course);
-            setCourses([...courses, newCourse]);
-        } catch (error) {
-            console.error("Error creating course:", error);
-        }
-    };
-
-    const deleteCourse = async (courseId: string) => {
-    try {
-        await courseClient.deleteCourse(courseId); 
-        setCourses(courses.filter((course) => course._id !== courseId));
-    } catch (error) {
-        console.error("Error deleting course:", error);
-    }
-};
 
     const updateCourse = async (course: any) => {
         try {
             await courseClient.updateCourse(course);
             setCourses(courses.map((c) => {
-                if (c._id === course._id) { 
-                    return course; 
-                } else { 
-                    return c; 
+                if (c._id === course._id) {
+                    return course;
+                } else {
+                    return c;
                 }
             }));
         } catch (error) {
@@ -59,9 +44,23 @@ export default function Kambaz() {
         }
     };
 
-    useEffect(() => {
-        fetchCourses();
-    }, [currentUser]);
+    const addNewCourse = async (course: any) => {
+        try {
+            const newCourse = await userClient.createCourse(course);
+            setCourses([...courses, newCourse]);
+        } catch (error) {
+            console.error("Error adding course:", error);
+        }
+    };
+
+    const deleteCourse = async (courseId: string) => {
+        try {
+            await courseClient.deleteCourse(courseId);
+            setCourses(courses.filter((course) => course._id !== courseId));
+        } catch (error) {
+            console.error("Error deleting course:", error);
+        }
+    };
 
     return (
         <Session>
@@ -73,7 +72,7 @@ export default function Kambaz() {
                         <Route path="Account/*" element={<Account />} />
                         <Route path="Dashboard" element={
                             <ProtectedRoute>
-                                <Dashboard 
+                                <Dashboard
                                     courses={courses}
                                     addNewCourse={addNewCourse}
                                     deleteCourse={deleteCourse}

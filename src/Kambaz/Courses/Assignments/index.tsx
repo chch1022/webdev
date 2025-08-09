@@ -34,7 +34,7 @@ export default function Assignments() {
 
   useEffect(() => {
     fetchAssignments();
-  }, [cid]);
+  }, [cid, dispatch]);
 
   const handleDeleteClick = (assignment: any) => {
     setAssignmentToDelete(assignment);
@@ -59,16 +59,15 @@ export default function Assignments() {
     setAssignmentToDelete(null);
   };
 
-  const groupedAssignments = assignments
-    .filter((assignment: any) => assignment.course === cid)
-    .reduce((groups: any, assignment: any) => {
-      const type = assignment.type || 'ASSIGNMENTS';
-      if (!groups[type]) {
-        groups[type] = [];
-      }
-      groups[type].push(assignment);
-      return groups;
-    }, {});
+  // Group assignments by type - no need to filter since API returns course-specific assignments
+  const groupedAssignments = assignments.reduce((groups: any, assignment: any) => {
+    const type = assignment.type || 'ASSIGNMENTS';
+    if (!groups[type]) {
+      groups[type] = [];
+    }
+    groups[type].push(assignment);
+    return groups;
+  }, {});
 
   const sectionConfigs = [
     { key: 'ASSIGNMENTS', title: 'ASSIGNMENTS', percentage: '40% of Total' },
@@ -156,10 +155,10 @@ export default function Assignments() {
                           {assignment.title}
                         </Link>
                         <div className="text-secondary ms-0 mt-2">
-                          {assignment.description} |
-                          {assignment.availableDate && ` Not available until ${new Date(assignment.availableDate).toLocaleDateString()} |`}
-                          {assignment.dueDate && ` Due ${new Date(assignment.dueDate).toLocaleDateString()} |`}
-                          {assignment.points && ` ${assignment.points} pts`}
+                          {assignment.description}
+                          {assignment.availableDate && ` | Not available until ${assignment.availableDate}`}
+                          {assignment.dueDate && ` | Due ${assignment.dueDate}`}
+                          {assignment.points && ` | ${assignment.points} pts`}
                         </div>
                       </div>
                       

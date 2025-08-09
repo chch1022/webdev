@@ -33,16 +33,18 @@ export default function Modules() {
     dispatch(addModule(module));
   };
 
+
   const removeModule = async (moduleId: string) => {
     await modulesClient.deleteModule(moduleId);
     dispatch(deleteModule(moduleId));
   };
 
-  // Updated saveModule function
+
   const saveModule = async (module: any) => {
     await modulesClient.updateModule(module);
     dispatch(updateModule(module));
   };
+
 
   return (
     <div>

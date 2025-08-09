@@ -1,6 +1,6 @@
 import axios from "axios";
-const HTTP_SERVER = import.meta.env.VITE_HTTP_SERVER;
-const COURSES_API = `${HTTP_SERVER}/api/courses`;
+const REMOTE_SERVER = import.meta.env.VITE_REMOTE_SERVER;
+const COURSES_API = `${REMOTE_SERVER}/api/courses`;
 export const fetchAllCourses = async () => {
   const { data } = await axios.get(COURSES_API);
   return data;
