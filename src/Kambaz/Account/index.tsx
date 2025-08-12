@@ -5,6 +5,7 @@ import Signup from "./Signup";
 import Profile from "./Profile";
 import AccountNavigation from "./Navigation";
 import Users from "./Users";
+import PeopleDetails from "../Courses/People/Details";
 
 export default function Account() {
   const { currentUser } = useSelector((state: any) => state.accountReducer);

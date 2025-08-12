@@ -8,6 +8,7 @@ export default function PeopleTable({ users = [] }: { users?: any[] })  {
 
   return (  
     <div id="wd-people-table">
+       <PeopleDetails />
       <Table striped>
         <thead>
           <tr>
