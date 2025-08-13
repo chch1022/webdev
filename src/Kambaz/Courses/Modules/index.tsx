@@ -1,4 +1,4 @@
-import { ListGroup, FormControl } from 'react-bootstrap';
+import { ListGroup } from 'react-bootstrap';
 import { BsGripVertical } from 'react-icons/bs';
 import ModulesControls from './ModulesControls';
 import LessonControlButtons from './LessonControlButtons';
@@ -40,10 +40,10 @@ export default function Modules() {
   // };
 
 
-  const saveModule = async (module: any) => {
-    await modulesClient.updateModule(module);
-    dispatch(updateModule(module));
-  };
+  // const saveModule = async (module: any) => {
+  //   await modulesClient.updateModule(module);
+  //   dispatch(updateModule(module));
+  // };
 
   const deleteModuleHandler = async (moduleId: string) => {
     await modulesClient.deleteModule(moduleId);
