@@ -49,7 +49,13 @@ export default function Modules() {
     await modulesClient.deleteModule(moduleId);
     dispatch(deleteModule(moduleId));
   };
- 
+
+  const updateModuleHandler = async (module: any) => {
+    await modulesClient.updateModule(module);
+    dispatch(updateModule(module));
+  };
+
+
 
 
   return (
@@ -68,7 +74,7 @@ export default function Modules() {
         </>
       )}
 
-      
+
 
       <ListGroup id="wd-modules" className="rounded-0">
         {modules.map((module: any) => (
@@ -76,30 +82,25 @@ export default function Modules() {
             <div className="wd-title p-3 ps-2 bg-secondary">
               <BsGripVertical className="me-2 fs-3" />
               {!module.editing && module.name}
-              {module.editing && currentUser?.role === "FACULTY" && (
-                <FormControl
-                  className="w-50 d-inline-block"
-                  onChange={(e) =>
-                    dispatch(
-                      updateModule({ ...module, name: e.target.value })
-                    )
-                  }
+
+              {module.editing && (
+                <input onChange={(e) =>
+                  updateModuleHandler({ ...module, name: e.target.value })}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
-                      saveModule({ ...module, editing: false });
+                      updateModuleHandler({ ...module, editing: false });
                     }
                   }}
-                  defaultValue={module.name}
-                />
+                  value={module.name} />
               )}
 
               {/* Only show ModuleControlButtons if user is FACULTY */}
               {currentUser?.role === "FACULTY" && (
-                 <ModuleControlButtons moduleId={module._id}
-                 deleteModule={(moduleId) => deleteModuleHandler(moduleId)}
-                 editModule={(moduleId) => dispatch(editModule(moduleId))} />
+                <ModuleControlButtons moduleId={module._id}
+                  deleteModule={(moduleId) => deleteModuleHandler(moduleId)}
+                  editModule={(moduleId) => dispatch(editModule(moduleId))} />
               )}
-          
+
 
             </div>
             {module.lessons && (
