@@ -45,6 +45,12 @@ export default function Modules() {
     dispatch(updateModule(module));
   };
 
+  const deleteModuleHandler = async (moduleId: string) => {
+    await modulesClient.deleteModule(moduleId);
+    dispatch(deleteModule(moduleId));
+  };
+ 
+
 
   return (
     <div>
@@ -61,6 +67,8 @@ export default function Modules() {
           <br /><br /><br />
         </>
       )}
+
+      
 
       <ListGroup id="wd-modules" className="rounded-0">
         {modules.map((module: any) => (
@@ -87,12 +95,12 @@ export default function Modules() {
 
               {/* Only show ModuleControlButtons if user is FACULTY */}
               {currentUser?.role === "FACULTY" && (
-                <ModuleControlButtons
-                  moduleId={module._id}
-                  deleteModule={removeModule}
-                  editModule={(moduleId) => dispatch(editModule(moduleId))}
-                />
+                 <ModuleControlButtons moduleId={module._id}
+                 deleteModule={(moduleId) => deleteModuleHandler(moduleId)}
+                 editModule={(moduleId) => dispatch(editModule(moduleId))} />
               )}
+          
+
             </div>
             {module.lessons && (
               <ListGroup className="wd-lessons rounded-0">
