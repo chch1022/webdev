@@ -7,6 +7,7 @@ import { FaPlus } from "react-icons/fa";
 export default function Users() {
  const [users, setUsers] = useState<any[]>([]);
  const [role, setRole] = useState("");
+ const [name, setName] = useState("");
  const filterUsersByRole = async (role: string) => {
    setRole(role);
    if (role) {
@@ -16,7 +17,8 @@ export default function Users() {
      fetchUsers();
    }
  };
- const [name, setName] = useState("");
+
+
  const filterUsersByName = async (name: string) => {
    setName(name);
    if (name) {
@@ -56,7 +58,9 @@ export default function Users() {
         <FaPlus className="me-2" />
         Users
       </button>
-     <FormControl onChange={(e) => filterUsersByName(e.target.value)} placeholder="Search people"
+     <FormControl 
+     value={name} 
+     onChange={(e) => filterUsersByName(e.target.value)} placeholder="Search people"
              className="float-start w-25 me-2 wd-filter-by-name" />
      <select value={role} onChange={(e) =>filterUsersByRole(e.target.value)}
               className="form-select float-start w-25 wd-select-role" >
