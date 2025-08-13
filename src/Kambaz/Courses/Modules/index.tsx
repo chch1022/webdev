@@ -34,10 +34,10 @@ export default function Modules() {
   };
 
 
-  const removeModule = async (moduleId: string) => {
-    await modulesClient.deleteModule(moduleId);
-    dispatch(deleteModule(moduleId));
-  };
+  // const removeModule = async (moduleId: string) => {
+  //   await modulesClient.deleteModule(moduleId);
+  //   dispatch(deleteModule(moduleId));
+  // };
 
 
   const saveModule = async (module: any) => {
