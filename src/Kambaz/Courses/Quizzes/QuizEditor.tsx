@@ -242,7 +242,7 @@ export default function QuizEditor() {
                 type="checkbox"
                 checked={currentQuiz?.shuffle}
                 onChange={(e) =>
-                  dispatch(updateQuiz({ ...currentQuiz, shuffle: e.target.value }))
+                  dispatch(updateQuiz({ ...currentQuiz, shuffle: e.target.checked}))
                 }
                 inline
               />
@@ -329,7 +329,7 @@ export default function QuizEditor() {
                 type="checkbox"
                 checked={currentQuiz?.webcam}
                 onChange={(e) =>
-                  dispatch(updateQuiz({ ...currentQuiz, webcam: e.target.value }))
+                  dispatch(updateQuiz({ ...currentQuiz, webcam: e.target.checked }))
                 }
                 inline
               />
@@ -341,7 +341,7 @@ export default function QuizEditor() {
                 type="checkbox"
                 checked={currentQuiz?.lock}
                 onChange={(e) =>
-                  dispatch(updateQuiz({ ...currentQuiz, lock: e.target.value }))
+                  dispatch(updateQuiz({ ...currentQuiz, lock: e.target.checked }))
                 }
                 inline
               />
