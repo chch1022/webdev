@@ -1,7 +1,7 @@
 import { Editor, EditorProvider } from "react-simple-wysiwyg";
 import { useState } from "react";
 import { Button, Form, Card } from "react-bootstrap";
-import { QuestionEditorProps } from "./QuizEditor";
+import type { QuestionEditorProps } from "./QuizEditor";
 
 export default function FillInTheBlankEditor({ index, handleUpdateQuestion }: QuestionEditorProps) {
   const [title, setTitle] = useState<string>("");
