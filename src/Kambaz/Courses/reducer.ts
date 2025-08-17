@@ -8,7 +8,7 @@ const initialState = {
 
 const coursesSlice = createSlice({
     name: "courses",
-    initialState,
+    initialState, 
     reducers: {
         addCourse: (state, { payload: course }) => {
             const newCourse: any = {

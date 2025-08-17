@@ -47,6 +47,8 @@ export default function Kambaz() {
 
 
     useEffect(() => {
+        if (!currentUser || !currentUser._id) return; // <-- ADDING THIS LINE TO AVOID CRASHING
+
         if (enrolling) {
             fetchCourses();
         } else {
