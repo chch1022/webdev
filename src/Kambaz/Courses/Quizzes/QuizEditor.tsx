@@ -242,7 +242,7 @@ export default function QuizEditor() {
                 type="checkbox"
                 checked={currentQuiz?.shuffle}
                 onChange={(e) =>
-                  dispatch(updateQuiz({ ...currentQuiz, shuffle: e.target.checked}))
+                  dispatch(updateQuiz({ ...currentQuiz, shuffle: e.target.checked }))
                 }
                 inline
               />
@@ -266,7 +266,7 @@ export default function QuizEditor() {
                 type="checkbox"
                 checked={currentQuiz?.attempts}
                 onChange={(e) =>
-                  dispatch(updateQuiz({ ...currentQuiz, attempts: e.target.value }))
+                  dispatch(updateQuiz({ ...currentQuiz, attempts: e.target.checked }))
                 }
                 inline
               />
@@ -306,11 +306,12 @@ export default function QuizEditor() {
                 type="text"
                 value={accessCode}
                 onChange={(e) =>
-                  dispatch(updateQuiz({ ...currentQuiz, title: e.target.value }))
+                  dispatch(updateQuiz({ ...currentQuiz, code: e.target.value })) 
                 }
-                placeholder="Enter acess code"
+                placeholder="Enter access code"
               />
             </Form.Group>
+
 
             <Form.Group className="mb-3" controlId="wd-points">
               <Form.Check
