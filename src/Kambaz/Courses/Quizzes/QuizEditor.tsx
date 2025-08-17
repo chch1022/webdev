@@ -293,7 +293,7 @@ export default function QuizEditor() {
                 type="checkbox"
                 checked={currentQuiz?.answers}
                 onChange={(e) =>
-                  dispatch(updateQuiz({ ...currentQuiz, answers: e.target.value }))
+                  dispatch(updateQuiz({ ...currentQuiz, answers: e.target.checked }))
                 }
                 inline
               />
@@ -318,7 +318,7 @@ export default function QuizEditor() {
                 type="checkbox"
                 checked={currentQuiz?.oneQuestion}
                 onChange={(e) =>
-                  dispatch(updateQuiz({ ...currentQuiz, oneQuestion: e.target.value }))
+                  dispatch(updateQuiz({ ...currentQuiz, oneQuestion: e.target.checked }))
                 }
                 inline
               />
