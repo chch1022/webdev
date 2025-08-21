@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Form } from "react-bootstrap";
+import { Button, Form, Card } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { addQuiz, setQuizzes, updateQuiz } from "./reducer";
@@ -16,6 +16,7 @@ export type QuestionInfo = {
   answers: string[],
   choices: string[]
 };
+
 export type QuestionEditorProps = {
   index: number;
   handleUpdateQuestion: (index: number, questionInfo: QuestionInfo) => void;
@@ -23,7 +24,6 @@ export type QuestionEditorProps = {
 
 export default function QuizEditor() {
   const { cid, qid } = useParams();
-  // const { quizId } = useParams();
   const dispatch = useDispatch();
   const { quizzes } = useSelector((state: any) => state.quizzesReducer);
   const navigate = useNavigate();
@@ -49,12 +49,13 @@ export default function QuizEditor() {
   const untilDate = currentQuiz?.until || "";
   const questionType = currentQuiz?.questionType || "";
 
+  const [activeTab, setActiveTab] = useState("details");
+
   useEffect(() => {
     const fetchQuizzes = async () => {
       const quizzes = await client.getQuizzes(cid!)
       dispatch(setQuizzes(quizzes));
     };
-
 
     fetchQuizzes();
   }, [cid, dispatch]);
@@ -96,44 +97,69 @@ export default function QuizEditor() {
       dispatch(updateQuiz(quiz));
       navigate(`/Kambaz/Courses/${cid}/Quizzes`);
     }
-
   };
 
   const handleUpdateQuestion = async (index: number, questionInfo: QuestionInfo) => {
     const updatedQuizQuestions = (currentQuiz?.questions || []).map((value: any, i: any) =>
       i === index ? { ...value, ...questionInfo } : value
     );
-    await client.updateQuiz({ ...currentQuiz, questions: updatedQuizQuestions });
-    dispatch(updateQuiz({ ...currentQuiz, questions: updatedQuizQuestions }));
+    const updatedQuiz = { ...currentQuiz, questions: updatedQuizQuestions };
+    await client.updateQuiz(updatedQuiz);
+    dispatch(updateQuiz(updatedQuiz));
   };
-
-  const [activeTab, setActiveTab] = useState("details");
 
   const handleTabClick = (tab: string) => {
     setActiveTab(tab);
   };
 
   const handleAddQuestion = async () => {
-    const newQuestion = {
-      _id: Date.now(),
-      type: "MULTIPLE-CHOICE",
-      title: "",
-      description: "",
-      answers: ["", "", "", ""],
-      points: 1,
-      choices: []
-    };
-    const x = await client.updateQuiz({ _id: qid!, questions: [...(currentQuiz?.questions || []), newQuestion] })
-    dispatch(updateQuiz({ _id: qid!, questions: [...(currentQuiz?.questions || []), newQuestion] }));
-    alert(JSON.stringify(x, null, 2) + qid);
+    try {
+      const newQuestion = {
+        _id: `question_${Date.now()}`,
+        type: "MULTIPLE-CHOICE",
+        title: "New Question",
+        description: "",
+        answers: ["Option 1", "Option 2", "Option 3", "Option 4"],
+        points: 1,
+        choices: ["Option 1", "Option 2", "Option 3", "Option 4"]
+      };
+      
+      const updatedQuestions = [...(currentQuiz?.questions || []), newQuestion];
+      const updatedQuiz = { _id: qid!, questions: updatedQuestions };
+      
+      await client.updateQuiz(updatedQuiz);
+      dispatch(updateQuiz(updatedQuiz));
+      
+      console.log("Question added successfully");
+    } catch (error) {
+      console.error("Failed to add question:", error);
+      alert("Failed to add question. Please try again.");
+    }
   };
 
+  const handleDeleteQuestion = async (questionIndex: number) => {
+    if (window.confirm("Are you sure you want to delete this question?")) {
+      try {
+        const updatedQuestions = (currentQuiz?.questions || []).filter((_: any, index: number) => index !== questionIndex);
+        const updatedQuiz = { _id: qid!, questions: updatedQuestions };
+        
+        await client.updateQuiz(updatedQuiz);
+        dispatch(updateQuiz(updatedQuiz));
+      } catch (error) {
+        console.error("Failed to delete question:", error);
+        alert("Failed to delete question. Please try again.");
+      }
+    }
+  };
 
   const [selectedType, setSelectedType] = useState("MULTIPLE-CHOICE");
 
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedType(e.target.value);
   };
+
+  // Calculate total points
+  const totalPoints = currentQuiz?.questions?.reduce((sum: number, q: any) => sum + (q.points || 0), 0) || 0;
 
   return (
     <div id="wd-quiz-editor">
@@ -173,13 +199,11 @@ export default function QuizEditor() {
                 value={quizTitle}
                 onChange={(e) =>
                   dispatch(updateQuiz({ ...currentQuiz, title: e.target.value }))
-
                 }
                 placeholder="Enter quiz name"
               />
             </Form.Group>
 
-            {/* Description */}
             <Form.Group className="mb-3" controlId="wd-description">
               <Form.Label>Description</Form.Label>
               <Form.Control
@@ -312,7 +336,6 @@ export default function QuizEditor() {
               />
             </Form.Group>
 
-
             <Form.Group className="mb-3" controlId="wd-points">
               <Form.Check
                 type="checkbox"
@@ -399,75 +422,85 @@ export default function QuizEditor() {
         </div>
       ) : (
         <div id="wd-quiz-questions">
-          <h3>Questions</h3>
-
-          {currentQuiz?.questions?.length > 0 ? (
-            currentQuiz.questions.map((question: any, index: number) => {
-              console.log(question)
-              return (
-                <div key={question._id} className="mb-3 p-3 border rounded">
-                  <div>
-                    <Form.Group className="mb-2">
-                      <Form.Label>Question Type</Form.Label>
-                      <Form.Select
-                        value={selectedType}
-                        onChange={handleTypeChange}
-                      >
-                        <option key={"MULTIPLE-CHOICE"} value="MULTIPLE-CHOICE">
-                          Multiple choice question
-                        </option>
-                        <option key={"TRUE-FALSE"} value="TRUE-FALSE">True/false question</option>
-                        <option key={"FILL-IN"} value="FILL-IN">Fill in a blank question</option>
-                      </Form.Select>
-                    </Form.Group>
-
-                    <div className="mt-4">
-                      {selectedType === "MULTIPLE-CHOICE" && (
-                        <MultipleChoiceEditor
-                          index={index}
-                          handleUpdateQuestion={handleUpdateQuestion}
-                        />
-                      )}
-                      {selectedType === "TRUE-FALSE" && (
-                        <TrueFalseEditor
-                          index={index}
-                          handleUpdateQuestion={handleUpdateQuestion}
-                        />
-                      )}
-                      {selectedType === "FILL-IN" && (
-                        <FillBlankEditor
-                          index={index}
-                          handleUpdateQuestion={handleUpdateQuestion}
-                        />
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-              )
-            }
-            )
-          ) : (
-            <p>No questions added yet.</p>
-          )}
-
-          <div className="d-flex gap-3 mt-4">
+          <div className="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <h3>Questions</h3>
+              <p className="text-muted">Total Points: {totalPoints}</p>
+            </div>
             <Button variant="primary" onClick={handleAddQuestion}>
-              + Add Question
+              + New Question
             </Button>
-
-            {/* <Link
-              to={`/Kambaz/Courses/${cid}/Quizzes/${quizId}/preview`}
-              className="btn btn-secondary"
-            >
-              Preview Quiz
-            </Link> */}
           </div>
 
-          <div
-            id="question-actions"
-            className="d-flex justify-content-center gap-2 mt-3"
-          ></div>
+          {currentQuiz?.questions?.length > 0 ? (
+            currentQuiz.questions.map((question: any, index: number) => (
+              <Card key={question._id || index} className="mb-4">
+                <Card.Header className="d-flex justify-content-between align-items-center">
+                  <div>
+                    <strong>Question {index + 1}</strong>
+                    <span className="ms-2 text-muted">({question.points || 1} pts)</span>
+                    <span className="ms-2 badge bg-secondary">{question.type || "MULTIPLE-CHOICE"}</span>
+                  </div>
+                  <Button 
+                    variant="outline-danger" 
+                    size="sm"
+                    onClick={() => handleDeleteQuestion(index)}
+                  >
+                    Delete Question
+                  </Button>
+                </Card.Header>
+                <Card.Body>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Question Type</Form.Label>
+                    <Form.Select
+                      value={question.type || "MULTIPLE-CHOICE"}
+                      onChange={(e) => {
+                        const updatedQuestions = currentQuiz.questions.map((q: any, i: number) =>
+                          i === index ? { ...q, type: e.target.value } : q
+                        );
+                        dispatch(updateQuiz({ ...currentQuiz, questions: updatedQuestions }));
+                      }}
+                    >
+                      <option value="MULTIPLE-CHOICE">Multiple choice question</option>
+                      <option value="TRUE-FALSE">True/false question</option>
+                      <option value="FILL-IN">Fill in the blank question</option>
+                    </Form.Select>
+                  </Form.Group>
+
+                  <div className="mt-4">
+                    {(question.type === "MULTIPLE-CHOICE" || !question.type) && (
+                      <MultipleChoiceEditor
+                        index={index}
+                        handleUpdateQuestion={handleUpdateQuestion}
+                      />
+                    )}
+                    {question.type === "TRUE-FALSE" && (
+                      <TrueFalseEditor
+                        index={index}
+                        handleUpdateQuestion={handleUpdateQuestion}
+                      />
+                    )}
+                    {question.type === "FILL-IN" && (
+                      <FillBlankEditor
+                        index={index}
+                        handleUpdateQuestion={handleUpdateQuestion}
+                      />
+                    )}
+                  </div>
+                </Card.Body>
+              </Card>
+            ))
+          ) : (
+            <Card className="text-center p-4">
+              <Card.Body>
+                <h5>No questions yet</h5>
+                <p>Click "New Question" to add your first question.</p>
+                <Button variant="primary" onClick={handleAddQuestion}>
+                  + New Question
+                </Button>
+              </Card.Body>
+            </Card>
+          )}
         </div>
       )}
     </div>
