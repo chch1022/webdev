@@ -27,6 +27,13 @@ export const deleteQuiz = async (quizId: string) => {
   return data;
 };
 
+export const togglePublishQuiz = async (quizId: string, published: boolean) => {
+  const { data } = await axiosWithCredentials.put(
+    `${QUIZZES_API}/${quizId}`,
+    { published }
+  );
+  return data;
+};
 
 export const takeQuiz = async (quiz: any) => {
   const { data } = await axiosWithCredentials.post(

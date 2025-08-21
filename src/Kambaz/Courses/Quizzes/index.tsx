@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Button, ListGroup, Dropdown } from "react-bootstrap";
-import { FaPlus, FaEllipsisV } from "react-icons/fa";
+import { FaPlus, FaEllipsisV, FaCheckCircle } from "react-icons/fa";
 import { useParams, useNavigate } from "react-router";
 import * as client from "./client"
 import { useDispatch, useSelector } from "react-redux";
-import { setQuizzes, deleteQuiz } from "./reducer";
+import { setQuizzes, deleteQuiz, updateQuiz } from "./reducer";
 import { BsGripVertical } from "react-icons/bs";
 
 const getAvailabilityStatus = (availableDate: string, dueDate: string) => {
@@ -62,6 +62,20 @@ export default function Quizzes() {
     }
   };
 
+  const handleTogglePublish = async (quiz: any) => {
+    try {
+      const newPublishedStatus = !quiz.published;
+      await client.togglePublishQuiz(quiz._id, newPublishedStatus);
+      dispatch(updateQuiz({ 
+        _id: quiz._id, 
+        published: newPublishedStatus 
+      }));
+    } catch (error) {
+      console.error("Failed to toggle publish status:", error);
+      alert("Failed to update publish status. Please try again.");
+    }
+  };
+
   return (
     <div id="wd-quizzes" className="container mt-3">
       {isFaculty && (
@@ -101,6 +115,16 @@ export default function Quizzes() {
                     className="wd-lesson p-3 ps-1 d-flex flex-row align-items-center"
                   >
                     <BsGripVertical className="me-2 fs-3 flex-shrink-0 mx-2" />
+                    
+                    {/* Published status indicator */}
+                    {quiz.published && (
+                      <FaCheckCircle 
+                        className="text-success me-2" 
+                        style={{ fontSize: '1.2rem' }}
+                        title="Published"
+                      />
+                    )}
+                    
                     <div className="flex-grow-1">
                       <div className="mb-2">
                         <a
@@ -109,6 +133,9 @@ export default function Quizzes() {
                         >
                           <strong>{quiz.title}</strong>
                         </a>
+                        {!quiz.published && (
+                          <span className="badge bg-secondary ms-2">Not Published</span>
+                        )}
                       </div>
 
                       <div className="text-muted small">
@@ -141,15 +168,22 @@ export default function Quizzes() {
                             Edit
                           </Dropdown.Item>
                           <Dropdown.Item
+                            onClick={() => navigate(`/Kambaz/Courses/${cid}/Quizzes/${quiz._id}/preview`)}
+                          >
+                            Preview
+                          </Dropdown.Item>
+                          <Dropdown.Divider />
+                          <Dropdown.Item
+                            onClick={() => handleTogglePublish(quiz)}
+                          >
+                            {quiz.published ? 'Unpublish' : 'Publish'}
+                          </Dropdown.Item>
+                          <Dropdown.Divider />
+                          <Dropdown.Item
                             onClick={() => handleDeleteQuiz(quiz._id)}
                             className="text-danger"
                           >
                             Delete
-                          </Dropdown.Item>
-                          <Dropdown.Item
-                            onClick={() => navigate(`/Kambaz/Courses/${cid}/Quizzes/${quiz._id}/preview`)}
-                          >
-                            Preview
                           </Dropdown.Item>
                         </Dropdown.Menu>
                       </Dropdown>
