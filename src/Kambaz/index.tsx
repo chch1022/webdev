@@ -39,6 +39,7 @@ export default function Kambaz() {
                 }
             });
             setCourses(courses);
+            
         } catch (error) {
             console.error(error);
         }

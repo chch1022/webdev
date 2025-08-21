@@ -1,10 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
-//import { courses } from "../Database";
 import { v4 as uuidv4 } from "uuid";
-import { courses } from "../Database";
 
 const initialState = {
-    courses: courses,
+    courses: [],
 };
 
 const coursesSlice = createSlice({

@@ -5,6 +5,10 @@ export const fetchAllCourses = async () => {
   const { data } = await axios.get(COURSES_API);
   return data;
 };
+export const createCourse = async (course: any) => {
+  const { data } = await axios.post(COURSES_API, course);
+  return data;
+};
 export const deleteCourse = async (id: string) => {
   const { data } = await axios.delete(`${COURSES_API}/${id}`);
   return data;
