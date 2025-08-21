@@ -1,11 +1,13 @@
 import { Button } from "react-bootstrap";
 import { FaPencilAlt } from "react-icons/fa";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useParams, Link } from "react-router";
 import * as client from "./client"
+import { updateQuiz } from "./reducer";
 
 export default function QuizDetails() {
   const { cid, qid } = useParams();
+  const dispatch = useDispatch();
   const { quizzes } = useSelector((state: any) => state.quizzesReducer)
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   const isFaculty = currentUser?.role === "FACULTY";
@@ -26,14 +28,28 @@ export default function QuizDetails() {
     return date.toLocaleString("en-US", options);
   };
 
-  const handleClick = async () => {
-    const body = {
-      _id: qid,
-      questions: [],
-      points: 0
+  const handleTogglePublish = async () => {
+    try {
+      const newPublishedStatus = !singleQuiz.published;
+      await client.togglePublishQuiz(singleQuiz._id, newPublishedStatus);
+      dispatch(updateQuiz({ 
+        _id: singleQuiz._id, 
+        published: newPublishedStatus 
+      }));
+    } catch (error) {
+      console.error("Failed to toggle publish status:", error);
+      alert("Failed to update publish status. Please try again.");
     }
-    const result = await client.takeQuiz(body)
-    console.log(result)
+  };
+
+  // Don't show the quiz to students if it's not published
+  if (isStudent && !singleQuiz?.published) {
+    return (
+      <div className="text-center mt-5">
+        <h3>Quiz Not Available</h3>
+        <p>This quiz is not currently published.</p>
+      </div>
+    );
   }
 
   return (
@@ -41,7 +57,7 @@ export default function QuizDetails() {
       {isFaculty && (
         <div
           id="wd-modules-controls"
-          className="d-flex justify-content-center gap-2"
+          className="d-flex justify-content-center gap-2 mb-3"
         >
           <Link to={`/Kambaz/Courses/${cid}/Quizzes/${qid}/preview`}>
             <Button variant="light" size="lg" className="me-1" id="wd-add-module-btn">
@@ -55,6 +71,19 @@ export default function QuizDetails() {
               Edit
             </Button>
           </Link>
+
+          {/* Publish/Unpublish button with symbol */}
+          <Button 
+            variant={singleQuiz?.published ? "success" : "secondary"} 
+            size="lg" 
+            className="me-1"
+            onClick={handleTogglePublish}
+          >
+            <span className="me-2">
+              {singleQuiz?.published ? "✅" : "🚫"}
+            </span>
+            {singleQuiz?.published ? "Unpublish" : "Publish"}
+          </Button>
         </div>
       )}
 
@@ -64,7 +93,6 @@ export default function QuizDetails() {
             <Button
               variant="danger"
               size="lg"
-
             >
               Start Quiz
             </Button>
@@ -72,114 +100,104 @@ export default function QuizDetails() {
         </div>
       )}
 
-
-
-
-      {/* <div>
-    <h3> {singleQuiz.title}</h3>
-    <h6><b>Quiz Type:</b> {singleQuiz.type}</h6>
-    <h6><b>Points:</b> {singleQuiz.points}</h6>
-    <h6><b>Assignment Group:</b> {singleQuiz.assignmentGroup}</h6>
-    <h6><b>Shuffle Answers:</b> {singleQuiz.shuffle}</h6>
-    <h6><b>Time Limit:</b> {singleQuiz.timeLimit}</h6>
-    <h6><b>Multiple Attempts:</b> {singleQuiz.multipleAttempts}</h6>
-    <h6><b>How Many Attempts:</b> {singleQuiz.shuffle}</h6>
-    <h6><b>Show Correct Answers:</b> {singleQuiz.showCorrectAnswer}</h6>
-    <h6><b>Access Code:</b> {singleQuiz.accessCode}</h6>
-    <h6><b>One Question At A Time:</b> {singleQuiz.oneQuestion}</h6>
-    <h6><b>Webcam Required:</b> {singleQuiz.webcamRequired}</h6>
-    <h6><b>Lock Questions After Answering:</b> {singleQuiz.lockQuestions}</h6>
-    <h6><b>Due Date:</b> {singleQuiz.due}</h6>
-    <h6><b>Available Date:</b> {singleQuiz.from}</h6>
-    <h6><b>Until Date:</b> {singleQuiz.to}</h6> */}
+      {/* Quiz Status Display */}
+      {isFaculty && (
+        <div className="text-center mb-4">
+          <div className="d-inline-flex align-items-center">
+            <span style={{ fontSize: '1.5rem', marginRight: '10px' }}>
+              {singleQuiz?.published ? "✅" : "🚫"}
+            </span>
+            <span className={`badge ${singleQuiz?.published ? 'bg-success' : 'bg-secondary'} fs-6`}>
+              {singleQuiz?.published ? "Published" : "Unpublished"}
+            </span>
+          </div>
+          <div className="text-muted mt-2">
+            {singleQuiz?.published 
+              ? "This quiz is available to students" 
+              : "This quiz is not available to students"
+            }
+          </div>
+        </div>
+      )}
 
       <div className="mt-4">
-        <h2>{singleQuiz.title}</h2>
-
-        <div onClick={handleClick}>
-          button
-        </div>
+        <h2>{singleQuiz?.title}</h2>
 
         <div className="d-flex justify-content-between">
           <h6 className="text-end me-3" style={{ width: "40%" }}><b>Quiz Type:</b></h6>
-          <h6 className="text-start" style={{ width: "60%" }}>{singleQuiz.type}</h6>
+          <h6 className="text-start" style={{ width: "60%" }}>{singleQuiz?.type}</h6>
         </div>
 
         <div className="d-flex justify-content-between">
           <h6 className="text-end me-3" style={{ width: "40%" }}><b>Points:</b></h6>
-          <h6 className="text-start" style={{ width: "60%" }}>{singleQuiz.points}</h6>
+          <h6 className="text-start" style={{ width: "60%" }}>{singleQuiz?.points}</h6>
         </div>
 
         <div className="d-flex justify-content-between">
           <h6 className="text-end me-3" style={{ width: "40%" }}><b>Assignment Group:</b></h6>
-          <h6 className="text-start" style={{ width: "60%" }}>{singleQuiz.assignmentGroup}</h6>
+          <h6 className="text-start" style={{ width: "60%" }}>{singleQuiz?.assignmentGroup}</h6>
         </div>
 
         <div className="d-flex justify-content-between">
           <h6 className="text-end me-3" style={{ width: "40%" }}><b>Shuffle Answers:</b></h6>
-          <h6 className="text-start" style={{ width: "60%" }}>{singleQuiz.shuffle ? "Yes" : "No"}</h6>
+          <h6 className="text-start" style={{ width: "60%" }}>{singleQuiz?.shuffle ? "Yes" : "No"}</h6>
         </div>
 
         <div className="d-flex justify-content-between">
           <h6 className="text-end me-3" style={{ width: "40%" }}><b>Time Limit:</b></h6>
-          <h6 className="text-start" style={{ width: "60%" }}>{singleQuiz.timeLimit}</h6>
+          <h6 className="text-start" style={{ width: "60%" }}>{singleQuiz?.timeLimit}</h6>
         </div>
 
         <div className="d-flex justify-content-between">
           <h6 className="text-end me-3" style={{ width: "40%" }}><b>Multiple Attempts:</b></h6>
-          <h6 className="text-start" style={{ width: "60%" }}>{singleQuiz.multipleAttempts ? "Yes" : "No"}</h6>
+          <h6 className="text-start" style={{ width: "60%" }}>{singleQuiz?.multipleAttempts ? "Yes" : "No"}</h6>
         </div>
 
         <div className="d-flex justify-content-between">
           <h6 className="text-end me-3" style={{ width: "40%" }}><b>How Many Attempts:</b></h6>
-          <h6 className="text-start" style={{ width: "60%" }}>{singleQuiz.howManyAttempts}</h6>
+          <h6 className="text-start" style={{ width: "60%" }}>{singleQuiz?.howManyAttempts}</h6>
         </div>
 
         <div className="d-flex justify-content-between">
           <h6 className="text-end me-3" style={{ width: "40%" }}><b>Show Correct Answers:</b></h6>
-          <h6 className="text-start" style={{ width: "60%" }}>{singleQuiz.showCorrectAnswer ? "Yes" : "No"}</h6>
+          <h6 className="text-start" style={{ width: "60%" }}>{singleQuiz?.showCorrectAnswer ? "Yes" : "No"}</h6>
         </div>
 
         <div className="d-flex justify-content-between">
           <h6 className="text-end me-3" style={{ width: "40%" }}><b>Access Code:</b></h6>
-          <h6 className="text-start" style={{ width: "60%" }}>{singleQuiz.accessCode ? singleQuiz.accessCode : "None"}</h6>
+          <h6 className="text-start" style={{ width: "60%" }}>{singleQuiz?.accessCode ? singleQuiz.accessCode : "None"}</h6>
         </div>
 
         <div className="d-flex justify-content-between">
           <h6 className="text-end me-3" style={{ width: "40%" }}><b>One Question At A Time:</b></h6>
-          <h6 className="text-start" style={{ width: "60%" }}>{singleQuiz.oneQuestion ? "Yes" : "No"}</h6>
+          <h6 className="text-start" style={{ width: "60%" }}>{singleQuiz?.oneQuestion ? "Yes" : "No"}</h6>
         </div>
 
         <div className="d-flex justify-content-between">
           <h6 className="text-end me-3" style={{ width: "40%" }}><b>Webcam Required:</b></h6>
-          <h6 className="text-start" style={{ width: "60%" }}>{singleQuiz.webcamRequired ? "Yes" : "No"}</h6>
+          <h6 className="text-start" style={{ width: "60%" }}>{singleQuiz?.webcamRequired ? "Yes" : "No"}</h6>
         </div>
 
         <div className="d-flex justify-content-between">
           <h6 className="text-end me-3" style={{ width: "40%" }}><b>Lock Questions After Answering:</b></h6>
-          <h6 className="text-start" style={{ width: "60%" }}>{singleQuiz.lockQuestions ? "Yes" : "No"}</h6>
+          <h6 className="text-start" style={{ width: "60%" }}>{singleQuiz?.lockQuestions ? "Yes" : "No"}</h6>
         </div>
 
         <div className="d-flex justify-content-between">
           <h6 className="text-end me-3" style={{ width: "40%" }}><b>Due Date:</b></h6>
-          <h6 className="text-start" style={{ width: "60%" }}>{formatDate(singleQuiz.due)}</h6>
+          <h6 className="text-start" style={{ width: "60%" }}>{formatDate(singleQuiz?.due)}</h6>
         </div>
 
         <div className="d-flex justify-content-between">
           <h6 className="text-end me-3" style={{ width: "40%" }}><b>Available Date:</b></h6>
-          <h6 className="text-start" style={{ width: "60%" }}>{formatDate(singleQuiz.from)}</h6>
+          <h6 className="text-start" style={{ width: "60%" }}>{formatDate(singleQuiz?.from)}</h6>
         </div>
 
         <div className="d-flex justify-content-between">
           <h6 className="text-end me-3" style={{ width: "40%" }}><b>Until Date:</b></h6>
-          <h6 className="text-start" style={{ width: "60%" }}>{formatDate(singleQuiz.to)}</h6>
+          <h6 className="text-start" style={{ width: "60%" }}>{formatDate(singleQuiz?.to)}</h6>
         </div>
       </div>
-
-
-
-
-
     </div>
   );
 }
