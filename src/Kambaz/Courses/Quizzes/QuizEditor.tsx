@@ -152,12 +152,6 @@ export default function QuizEditor() {
     }
   };
 
-  const [selectedType, setSelectedType] = useState("MULTIPLE-CHOICE");
-
-  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedType(e.target.value);
-  };
-
   // Calculate total points
   const totalPoints = currentQuiz?.questions?.reduce((sum: number, q: any) => sum + (q.points || 0), 0) || 0;
 

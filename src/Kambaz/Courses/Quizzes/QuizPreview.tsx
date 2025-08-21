@@ -47,8 +47,8 @@ export default function QuizPreview() {
       };
     });
 
-    const totalPoints = questionResults.reduce((sum, result) => sum + result.points, 0);
-    const maxTotalPoints = questionResults.reduce((sum, result) => sum + result.maxPoints, 0);
+    const totalPoints = questionResults.reduce((sum: number, result: any) => sum + result.points, 0);
+    const maxTotalPoints = questionResults.reduce((sum: number, result: any) => sum + result.maxPoints, 0);
     const percentage = maxTotalPoints > 0 ? Math.round((totalPoints / maxTotalPoints) * 100) : 0;
 
     return {
