@@ -22,6 +22,12 @@ export const updateQuiz = async (quiz: any) => {
   return data;
 };
 
+export const deleteQuiz = async (quizId: string) => {
+  const { data } = await axiosWithCredentials.delete(`${QUIZZES_API}/${quizId}`);
+  return data;
+};
+
+
 export const takeQuiz = async (quiz: any) => {
   const { data } = await axiosWithCredentials.post(
     `${QUIZZES_API}/${quiz._id}`,

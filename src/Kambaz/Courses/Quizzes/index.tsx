@@ -1,10 +1,10 @@
-import { useEffect } from "react";
-import { Button, ListGroup } from "react-bootstrap";
-import { FaPlus } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import { Button, ListGroup, Dropdown } from "react-bootstrap";
+import { FaPlus, FaEllipsisV } from "react-icons/fa";
 import { useParams, useNavigate } from "react-router";
 import * as client from "./client"
 import { useDispatch, useSelector } from "react-redux";
-import { setQuizzes } from "./reducer";
+import { setQuizzes, deleteQuiz } from "./reducer";
 import { BsGripVertical } from "react-icons/bs";
 
 const getAvailabilityStatus = (availableDate: string, dueDate: string) => {
@@ -50,6 +50,18 @@ export default function Quizzes() {
     fetchQuizzes();
   }, [cid, dispatch])
 
+  const handleDeleteQuiz = async (quizId: string) => {
+    if (window.confirm("Are you sure you want to delete this quiz?")) {
+      try {
+        await client.deleteQuiz(quizId);
+        dispatch(deleteQuiz(quizId));
+      } catch (error) {
+        console.error("Failed to delete quiz:", error);
+        alert("Failed to delete quiz. Please try again.");
+      }
+    }
+  };
+
   return (
     <div id="wd-quizzes" className="container mt-3">
       {isFaculty && (
@@ -72,7 +84,6 @@ export default function Quizzes() {
         </Button>
       </div>
       )}
-
 
       <div id="wd-modules-controls" className="text-nowrap">
         <ListGroup className="rounded-0" id="wd-modules">
@@ -111,6 +122,38 @@ export default function Quizzes() {
                         </span>
                       </div>
                     </div>
+
+                    {isFaculty && (
+                      <Dropdown>
+                        <Dropdown.Toggle
+                          variant="light"
+                          id={`dropdown-${quiz._id}`}
+                          className="border-0 bg-transparent"
+                          style={{ boxShadow: 'none' }}
+                        >
+                          <FaEllipsisV />
+                        </Dropdown.Toggle>
+
+                        <Dropdown.Menu>
+                          <Dropdown.Item
+                            onClick={() => navigate(`/Kambaz/Courses/${cid}/Quizzes/${quiz._id}`)}
+                          >
+                            Edit
+                          </Dropdown.Item>
+                          <Dropdown.Item
+                            onClick={() => handleDeleteQuiz(quiz._id)}
+                            className="text-danger"
+                          >
+                            Delete
+                          </Dropdown.Item>
+                          <Dropdown.Item
+                            onClick={() => navigate(`/Kambaz/Courses/${cid}/Quizzes/${quiz._id}/preview`)}
+                          >
+                            Preview
+                          </Dropdown.Item>
+                        </Dropdown.Menu>
+                      </Dropdown>
+                    )}
 
                   </ListGroup.Item>
                 ))}
