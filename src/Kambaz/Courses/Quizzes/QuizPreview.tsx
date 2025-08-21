@@ -1,162 +1,365 @@
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Button } from "react-bootstrap";
+import { Button, Card, Form, Alert } from "react-bootstrap";
 import { useSelector } from "react-redux";
 
-type Question = {
-  id: string;
-  question: string;
-  choices: string[];
-  correctAnswer: string;
-};
-
 export default function QuizPreview() {
-  const { quizId, cid, qid } = useParams();
-  const [answers, setAnswers] = useState<{ [key: string]: string }>({});
+  const { cid, qid } = useParams();
+  const [answers, setAnswers] = useState<{ [key: number]: string }>({});
   const [submitted, setSubmitted] = useState(false);
-  const [score, setScore] = useState<number | null>(null);
-  const [currentQIndex, setCurrentQIndex] = useState(0);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
   const { quizzes } = useSelector((state: any) => state.quizzesReducer);
-  const singleQuiz = quizzes.find((quiz: any) => quiz._id === qid);
-  const questionsList = singleQuiz?.questions || [];
-
-  // 🔁 Convert backend format to frontend format
-  const quizQuestions: Question[] = useMemo(() => {
-    return questionsList.map((q: any, index: number) => ({
-      id: `q${index}`,
-      question: q.title || `Question ${index + 1}`,
-      choices: q.answers || [],
-      correctAnswer: q.answers[q.correctOption] || "",
-    }));
-  }, [questionsList]);
-
-  const currentQuestion = quizQuestions[currentQIndex];
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   const isFaculty = currentUser?.role === "FACULTY";
+  const isStudent = currentUser?.role === "STUDENT";
 
-  useEffect(() => {
-    const saved = localStorage.getItem(`quiz-preview-${quizId}`);
-    if (saved) {
-      setAnswers(JSON.parse(saved));
-    }
-  }, [quizId]);
+  const quiz = quizzes.find((quiz: any) => quiz._id === qid);
+  const questions = quiz?.questions || [];
 
-  const handleSelect = (qid: string, answer: string) => {
+  // Calculate score and results
+  const results = useMemo(() => {
+    if (!submitted || questions.length === 0) return null;
+
+    let correctCount = 0;
+    const questionResults = questions.map((question: any, index: number) => {
+      const userAnswer = answers[index];
+      let isCorrect = false;
+
+      if (question.type === "MULTIPLE-CHOICE" || question.type === "TRUE-FALSE") {
+        isCorrect = userAnswer === question.answers[0];
+      } else if (question.type === "FILL-IN") {
+        // Check if user answer matches any of the possible correct answers (case insensitive)
+        isCorrect = question.answers.some((correctAnswer: string) => 
+          correctAnswer.toLowerCase().trim() === userAnswer?.toLowerCase().trim()
+        );
+      }
+
+      if (isCorrect) correctCount++;
+
+      return {
+        questionIndex: index,
+        userAnswer,
+        correctAnswer: question.answers[0],
+        isCorrect,
+        points: isCorrect ? (question.points || 1) : 0,
+        maxPoints: question.points || 1
+      };
+    });
+
+    const totalPoints = questionResults.reduce((sum, result) => sum + result.points, 0);
+    const maxTotalPoints = questionResults.reduce((sum, result) => sum + result.maxPoints, 0);
+    const percentage = maxTotalPoints > 0 ? Math.round((totalPoints / maxTotalPoints) * 100) : 0;
+
+    return {
+      correctCount,
+      totalQuestions: questions.length,
+      totalPoints,
+      maxTotalPoints,
+      percentage,
+      questionResults
+    };
+  }, [submitted, answers, questions]);
+
+  const currentQuestion = questions[currentQuestionIndex];
+
+  const handleAnswerChange = (questionIndex: number, answer: string) => {
     if (submitted) return;
-    setAnswers((prev) => ({ ...prev, [qid]: answer }));
+    setAnswers(prev => ({ ...prev, [questionIndex]: answer }));
+  };
+
+  const handleNext = () => {
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+    }
   };
 
   const handleSubmit = () => {
-    let correct = 0;
-    quizQuestions.forEach((q) => {
-      if (answers[q.id] === q.correctAnswer) correct++;
-    });
-    setScore(correct);
-    setSubmitted(true);
-    localStorage.setItem(`quiz-preview-${quizId}`, JSON.stringify(answers));
-  };
-
-  const goToNext = () => {
-    if (currentQIndex < quizQuestions.length - 1) {
-      setCurrentQIndex((prev) => prev + 1);
+    if (window.confirm("Are you sure you want to submit your quiz? You cannot change your answers after submission.")) {
+      setSubmitted(true);
     }
   };
 
-  const goToPrevious = () => {
-    if (currentQIndex > 0) {
-      setCurrentQIndex((prev) => prev - 1);
-    }
+  const goToQuestion = (index: number) => {
+    setCurrentQuestionIndex(index);
   };
 
-  if (!quizQuestions.length) {
-    return <div className="text-center mt-10">No questions available.</div>;
+  // Don't show quiz to students if not published
+  if (isStudent && !quiz?.published) {
+    return (
+      <div className="container mt-5">
+        <Alert variant="warning" className="text-center">
+          <h4>Quiz Not Available</h4>
+          <p>This quiz is not currently published and available to students.</p>
+          <Link to={`/Kambaz/Courses/${cid}/Quizzes`}>
+            <Button variant="primary">Back to Quizzes</Button>
+          </Link>
+        </Alert>
+      </div>
+    );
   }
 
+  if (!quiz || questions.length === 0) {
+    return (
+      <div className="container mt-5">
+        <Alert variant="info" className="text-center">
+          <h4>No Questions Available</h4>
+          <p>This quiz doesn't have any questions yet.</p>
+          {isFaculty && (
+            <Link to={`/Kambaz/Courses/${cid}/Quizzes/${qid}/QuizQuestions`}>
+              <Button variant="primary">Add Questions</Button>
+            </Link>
+          )}
+          <Link to={`/Kambaz/Courses/${cid}/Quizzes`} className="ms-2">
+            <Button variant="secondary">Back to Quizzes</Button>
+          </Link>
+        </Alert>
+      </div>
+    );
+  }
+
+  // Results view after submission
+  if (submitted && results) {
+    return (
+      <div className="container mt-4">
+        <Card>
+          <Card.Header className="bg-primary text-white">
+            <h3 className="mb-0">Quiz Results: {quiz.title}</h3>
+          </Card.Header>
+          <Card.Body>
+            <div className="text-center mb-4">
+              <h2 className="text-primary">Score: {results.totalPoints}/{results.maxTotalPoints} ({results.percentage}%)</h2>
+              <p className="lead">
+                You answered {results.correctCount} out of {results.totalQuestions} questions correctly.
+              </p>
+            </div>
+
+            <h4>Question Review:</h4>
+            {questions.map((question: any, index: number) => {
+              const result = results.questionResults[index];
+              return (
+                <Card key={index} className={`mb-3 ${result.isCorrect ? 'border-success' : 'border-danger'}`}>
+                  <Card.Header className={`${result.isCorrect ? 'bg-success text-white' : 'bg-danger text-white'}`}>
+                    <div className="d-flex justify-content-between">
+                      <span>Question {index + 1}: {question.title}</span>
+                      <span>{result.points}/{result.maxPoints} points</span>
+                    </div>
+                  </Card.Header>
+                  <Card.Body>
+                    <div dangerouslySetInnerHTML={{ __html: question.description || question.title }} />
+                    
+                    {question.type === "MULTIPLE-CHOICE" && (
+                      <div className="mt-3">
+                        {question.choices.map((choice: string, choiceIndex: number) => (
+                          <div key={choiceIndex} className="mb-2">
+                            <Form.Check
+                              type="radio"
+                              name={`result_question_${index}`}
+                              label={choice}
+                              checked={result.userAnswer === choice}
+                              readOnly
+                              className={
+                                choice === result.correctAnswer ? 'text-success fw-bold' :
+                                choice === result.userAnswer && !result.isCorrect ? 'text-danger' : ''
+                              }
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {question.type === "TRUE-FALSE" && (
+                      <div className="mt-3">
+                        <div className={`mb-2 ${result.userAnswer === 'true' ? (result.isCorrect ? 'text-success fw-bold' : 'text-danger') : ''}`}>
+                          <Form.Check type="radio" label="True" checked={result.userAnswer === 'true'} readOnly />
+                        </div>
+                        <div className={`mb-2 ${result.userAnswer === 'false' ? (result.isCorrect ? 'text-success fw-bold' : 'text-danger') : ''}`}>
+                          <Form.Check type="radio" label="False" checked={result.userAnswer === 'false'} readOnly />
+                        </div>
+                      </div>
+                    )}
+
+                    {question.type === "FILL-IN" && (
+                      <div className="mt-3">
+                        <p><strong>Your Answer:</strong> <span className={result.isCorrect ? 'text-success' : 'text-danger'}>{result.userAnswer || '(No answer)'}</span></p>
+                        <p><strong>Correct Answer(s):</strong> <span className="text-success">{question.answers.join(', ')}</span></p>
+                      </div>
+                    )}
+
+                    {!result.isCorrect && (
+                      <Alert variant="danger" className="mt-2 mb-0">
+                        <strong>Incorrect.</strong> The correct answer is: {result.correctAnswer}
+                      </Alert>
+                    )}
+                  </Card.Body>
+                </Card>
+              );
+            })}
+
+            <div className="text-center mt-4">
+              {isFaculty && (
+                <Link to={`/Kambaz/Courses/${cid}/Quizzes/${qid}/QuizQuestions`} className="me-3">
+                  <Button variant="primary">Edit Quiz</Button>
+                </Link>
+              )}
+              <Link to={`/Kambaz/Courses/${cid}/Quizzes`}>
+                <Button variant="secondary">Back to Quizzes</Button>
+              </Link>
+            </div>
+          </Card.Body>
+        </Card>
+      </div>
+    );
+  }
+
+  // Quiz taking view
   return (
-    <div className="max-w-2xl mx-auto p-6 space-y-6 bg-white shadow-md rounded-lg">
-      <h2 className="text-2xl font-bold border-b pb-3">Quiz Preview</h2>
-
-      <div className="border border-gray-200 p-4 rounded-md bg-gray-50">
-        <h3 className="text-lg font-medium mb-4">
-          Question {currentQIndex + 1} of {quizQuestions.length}
-        </h3>
-        <p className="mb-4 font-semibold">{currentQuestion.question}</p>
-
-        <div className="space-y-3">
-          {currentQuestion.choices.map((choice) => {
-            const isSelected = answers[currentQuestion.id] === choice;
-            const isCorrect = choice === currentQuestion.correctAnswer;
-            const isIncorrect =
-              isSelected && choice !== currentQuestion.correctAnswer;
-
-            return (
-              <div key={choice}>
-                <label
-                  className={`flex items-center p-2 cursor-pointer transition ${submitted
-                    ? isCorrect
-                      ? "bg-green-100"
-                      : isIncorrect
-                        ? "bg-red-100"
-                        : "bg-white"
-                    : "hover:bg-gray-100"
-                    }`}
+    <div className="container mt-4">
+      <Card>
+        <Card.Header className="d-flex justify-content-between align-items-center">
+          <h3 className="mb-0">{quiz.title} {isFaculty && '(Preview)'}</h3>
+          <div>
+            Question {currentQuestionIndex + 1} of {questions.length}
+          </div>
+        </Card.Header>
+        <Card.Body>
+          {/* Question Navigation */}
+          <div className="mb-4">
+            <h6>Questions:</h6>
+            <div className="d-flex flex-wrap gap-1">
+              {questions.map((_: any, index: number) => (
+                <Button
+                  key={index}
+                  variant={answers[index] ? "success" : "outline-secondary"}
+                  size="sm"
+                  onClick={() => goToQuestion(index)}
+                  className={currentQuestionIndex === index ? "border-primary" : ""}
                 >
-                  <input
-                    type="radio"
-                    name={currentQuestion.id}
-                    value={choice}
-                    checked={isSelected}
-                    onChange={() => handleSelect(currentQuestion.id, choice)}
-                    disabled={submitted}
-                    className="mr-3 scale-125"
-                  />
-                  <span className="text-base">{choice}</span>
-                </label>
+                  {index + 1}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Current Question */}
+          <Card className="mb-4">
+            <Card.Header>
+              <h5>Question {currentQuestionIndex + 1} ({currentQuestion.points || 1} points)</h5>
+            </Card.Header>
+            <Card.Body>
+              <div className="mb-3">
+                <div dangerouslySetInnerHTML={{ __html: currentQuestion.description || currentQuestion.title }} />
               </div>
-            );
-          })}
-        </div>
-      </div>
 
-      {/* Navigation buttons */}
-      <div className="flex justify-between pt-4">
-        {currentQIndex > 0 ? (
-          <Button variant="secondary" onClick={goToPrevious}>
-            Previous
-          </Button>
-        ) : (
-          <div />
-        )}
+              {/* Multiple Choice */}
+              {currentQuestion.type === "MULTIPLE-CHOICE" && (
+                <div>
+                  {currentQuestion.choices.map((choice: string, choiceIndex: number) => (
+                    <div key={choiceIndex} className="mb-2">
+                      <Form.Check
+                        type="radio"
+                        name={`question_${currentQuestionIndex}`}
+                        label={choice}
+                        checked={answers[currentQuestionIndex] === choice}
+                        onChange={() => handleAnswerChange(currentQuestionIndex, choice)}
+                        disabled={submitted}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
 
-        {currentQIndex < quizQuestions.length - 1 ? (
-          <Button onClick={goToNext} disabled={!answers[currentQuestion.id]}>
-            Next
-          </Button>
-        ) : !submitted ? (
-          <Button
-            onClick={handleSubmit}
-            disabled={!answers[currentQuestion.id]}
-            className="bg-blue-600"
-          >
-            Submit Quiz
-          </Button>
-        ) : null}
-      </div>
+              {/* True/False */}
+              {currentQuestion.type === "TRUE-FALSE" && (
+                <div>
+                  <Form.Check
+                    type="radio"
+                    name={`question_${currentQuestionIndex}`}
+                    label="True"
+                    checked={answers[currentQuestionIndex] === "true"}
+                    onChange={() => handleAnswerChange(currentQuestionIndex, "true")}
+                    disabled={submitted}
+                    className="mb-2"
+                  />
+                  <Form.Check
+                    type="radio"
+                    name={`question_${currentQuestionIndex}`}
+                    label="False"
+                    checked={answers[currentQuestionIndex] === "false"}
+                    onChange={() => handleAnswerChange(currentQuestionIndex, "false")}
+                    disabled={submitted}
+                  />
+                </div>
+              )}
 
-      {submitted && (
-        <div className="text-xl font-semibold text-center text-indigo-700 pt-4">
-          Score: {score} / {quizQuestions.length}
+              {/* Fill in the Blank */}
+              {currentQuestion.type === "FILL-IN" && (
+                <div>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter your answer"
+                    value={answers[currentQuestionIndex] || ""}
+                    onChange={(e) => handleAnswerChange(currentQuestionIndex, e.target.value)}
+                    disabled={submitted}
+                  />
+                </div>
+              )}
+            </Card.Body>
+          </Card>
+
+          {/* Navigation Buttons */}
+          <div className="d-flex justify-content-between align-items-center">
+            <Button
+              variant="secondary"
+              onClick={handlePrevious}
+              disabled={currentQuestionIndex === 0}
+            >
+              Previous
+            </Button>
+
+            <div className="d-flex gap-2">
+              {currentQuestionIndex < questions.length - 1 ? (
+                <Button
+                  variant="primary"
+                  onClick={handleNext}
+                >
+                  Next
+                </Button>
+              ) : (
+                <Button
+                  variant="success"
+                  onClick={handleSubmit}
+                  disabled={Object.keys(answers).length === 0}
+                >
+                  Submit Quiz
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* Progress Info */}
+          <div className="mt-3 text-center text-muted">
+            <small>
+              Answered: {Object.keys(answers).length} of {questions.length} questions
+            </small>
+          </div>
+        </Card.Body>
+      </Card>
+
+      {/* Faculty Edit Button */}
+      {isFaculty && (
+        <div className="text-center mt-3">
+          <Link to={`/Kambaz/Courses/${cid}/Quizzes/${qid}/QuizQuestions`}>
+            <Button variant="outline-primary">Edit Quiz</Button>
+          </Link>
         </div>
       )}
-
-{isFaculty && (
-      <div className="flex justify-end pt-6">
-        <Link to={`/Kambaz/Courses/${cid}/Quizzes/QuizQuestions`}>
-          <Button variant="secondary">Edit Quiz</Button>
-        </Link>
-      </div>
-)}
     </div>
   );
 }
